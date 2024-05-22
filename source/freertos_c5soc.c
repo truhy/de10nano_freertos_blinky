@@ -1,29 +1,35 @@
 /*
-	MIT License
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-
-	Developer: Truong Hy
-	Version  : 20240503
-
+ * FreeRTOS V202212.01
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * https://www.FreeRTOS.org
+ * https://github.com/FreeRTOS
+ *
 	Cyclone V SoC (Arm Cortex-A9) supporting code for the FreeRTOS function
 	hooks (callbacks) and handlers.
+
+	This code is from main() of the FreeRTOS CORTEX_A9_Cyclone_V_SoC_DK Demo.
+
+	05 May 2024 - Truong Hy:
+	Added my own IRQ handlers which jumps to the FreeRTOS ones.  This is to
+	support my more complete startup code, instead of Altera's HWLIB startup.
 */
 
 // FreeRTOS includes
@@ -36,21 +42,21 @@
 #include "alt_clock_manager.h"
 #include "socal/socal.h"
 
-// Override weak vector table exception handler and jump to FreeRTOS Cortex-A9 handler
-// Note, in the portASM.S (Cortex-A9 port) the FreeRTOS_SWI_Handler function
-// actually has some input arguments, which obviously doesn't match with this
-// function prototype, so to preserve the input arguments we jump to it without
-// changing anything, hence the use of naked attribute
+// Overrides weak vector table exception handler and jump to the FreeRTOS
+// FreeRTOS_SWI_Handler function found in portASM.S (Cortex-A9 port).  Note,
+// their function has some input arguments, which obviously doesn't match with
+// this function prototype, so to preserve the input arguments we jump to it
+// without changing anything, hence the use of naked attribute and assembly
 // See tru_startup.c for the vector table
 void __attribute__ ((naked)) SVC_Handler(void){
 	__asm__ volatile("LDR pc, =FreeRTOS_SWI_Handler");
 }
 
-// Override weak vector table exception handler
-// Note, in the portASM.S (Cortex-A9 port) the FreeRTOS_IRQ_Handler function
-// actually has some input arguments, which obviously doesn't match with this
-// function prototype, so to preserve the input arguments we jump to it without
-// changing anything, hence the use of naked attribute
+// Overrides weak vector table exception handler and jump to the FreeRTOS
+// FreeRTOS_IRQ_Handler function found in portASM.S (Cortex-A9 port).  Note,
+// their function has some input arguments, which obviously doesn't match with
+// this function prototype, so to preserve the input arguments we jump to it
+// without changing anything, hence the use of naked attribute and assembly
 // See tru_startup.c for the vector table
 void __attribute__ ((naked)) IRQ_Handler(void){
 	__asm__ volatile("LDR pc, =FreeRTOS_IRQ_Handler");
@@ -58,7 +64,7 @@ void __attribute__ ((naked)) IRQ_Handler(void){
 
 /* FreeRTOS uses its own interrupt handler code.  This code cannot use the array
 of handlers defined by the Altera drivers because the array is declared static,
-and so not accessible outside of the dirver's source file.  Instead declare an
+and so not accessible outside of the driver's source file.  Instead declare an
 array for use by the FreeRTOS handler.  See:
 http://www.freertos.org/Using-FreeRTOS-on-Cortex-A-Embedded-Processors.html. */
 static INT_DISPATCH_t xISRHandlers[ALT_INT_PROVISION_INT_COUNT];
@@ -142,9 +148,9 @@ void vConfigureTickInterrupt(void){
 	alt_int_dist_priority_set(ALT_INT_INTERRUPT_PPI_TIMER_PRIVATE, portLOWEST_USABLE_INTERRUPT_PRIORITY << portPRIORITY_SHIFT);
 
 	/* Enable the private timer interrupt. */
-    alt_int_dist_enable(ALT_INT_INTERRUPT_PPI_TIMER_PRIVATE);
+	alt_int_dist_enable(ALT_INT_INTERRUPT_PPI_TIMER_PRIVATE);
 
-    /* Enable interrupt trigger of private timer. */
+	/* Enable interrupt trigger of private timer. */
 	alt_gpt_int_clear_pending(ALT_GPT_CPU_PRIVATE_TMR);
 	alt_gpt_int_enable(ALT_GPT_CPU_PRIVATE_TMR);
 }
@@ -163,7 +169,7 @@ void vApplicationFPUSafeIRQHandler(uint32_t ulICCIAR){  // If using GCC and Free
 	alt_int_callback_t pxISR;
 
 	/* Re-enable interrupts. */
-    __asm ("CPSIE i");
+	__asm ("CPSIE i");
 
 	/* The ID of the interrupt is obtained by bitwise anding the ICCIAR value
 	with 0x3FF. */
