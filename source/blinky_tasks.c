@@ -20,7 +20,7 @@
 	SOFTWARE.
 
 	Developer: Truong Hy
-	Version  : 20240503
+	Version  : 20241009
 
 	LED blinky demo FreeRTOS tasks.
 
@@ -212,19 +212,19 @@ static void blinky_receiver_task(void *parameters){
 			case BLINK_MSG:
 				// Blink only when the key is up
 				if(last_key_msg == KEYUP_MSG){
-					DEBUG_PRINTF("Blink\n");
+					LOG("Blink\n");
 					blinky_toggle_led_safe();  // blink the LED
 				}
 				break;
 
 			case KEYDOWN_MSG:
-				DEBUG_PRINTF("Key down\n");
+				LOG("Key down\n");
 				blinky_set_led_state_safe(TRU_HPS_GPIO_PIN_HIGH);  // LED on
 				last_key_msg = KEYDOWN_MSG;
 				break;
 
 			case KEYUP_MSG:
-				DEBUG_PRINTF("Key up\n");
+				LOG("Key up\n");
 				blinky_set_led_state_safe(TRU_HPS_GPIO_PIN_LOW);  // LED off
 				last_key_msg = KEYUP_MSG;
 				break;
