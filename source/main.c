@@ -43,7 +43,7 @@
 	Building
 	========
 
-	This sample can be compiled with vanilla open source tools:
+	This example can be compiled with vanilla open source tools:
 		- Eclipse IDE for Embedded C/C++
 		- GNU Toolchain for Arm (with support for Cortex-A9)
 		- GNU Make
@@ -72,7 +72,7 @@
 	Libraries
 	=========
 
-	Open source libraries used (already included in this sample):
+	Open source libraries used (already included in this example):
 		- FreeRTOS
 		- Intel HWLIB for Cyclone V SoC
 		- Trulib and GNU linker script (my own library and script)

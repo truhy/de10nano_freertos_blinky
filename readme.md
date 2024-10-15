@@ -1,4 +1,4 @@
-# FreeRTOS LED blink sample demo for the Terasic DE10-Nano development board
+# FreeRTOS LED blink example demo for the Terasic DE10-Nano development board
 
 ## Overview
 
