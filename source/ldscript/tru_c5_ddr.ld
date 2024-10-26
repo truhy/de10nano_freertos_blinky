@@ -1,11 +1,11 @@
 OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 
-ENTRY(Reset_Handler)  /* Entry point */
+ENTRY(Reset_Handler)
 
 /* __RAM_BASE       = 0x0; */           /* For making a program that starts from beginning of DDR-3 SDRAM with lower 1MB address remapped */
 __RAM_BASE       = 0x1000;              /* For making a program that can be loaded in the U-Boot console and run with go command. Note: U-Boot console has some reserved memories that perhaps cannot be used, e.g. 0x0-0xfff (see with bdinfo command) */
-__RAM_SIZE       = 64M;                 /* DDR3 SDRAM size of this app */
+__RAM_SIZE       = 1024M - __RAM_BASE;  /* DDR3 SDRAM size of this app */
 __FIQ_STACK_SIZE = 4096;
 __IRQ_STACK_SIZE = 4096;
 __SVC_STACK_SIZE = 4096;
@@ -30,17 +30,17 @@ PHDRS {
 
 SECTIONS {
     .vectors : {
-        Image$$VECTORS$$Base = .;
+        Image$$VECTORS$$Base = .;   /* Used by CMSIS */
         
-        *(RESET)     /* Used by CMSIS for vector table */
-        *(.vectors)  /* Used by HWLib and my startup */
+        *(RESET)                    /* Used by CMSIS and my startup for vector table */
+        *(.vectors)                 /* Used by HWLib */
         
-        Image$$VECTORS$$Limit = .;
+        Image$$VECTORS$$Limit = .;  /* Used by CMSIS */
     } > __RAM : __LOAD_RX
 
     .text : {
         . = ALIGN(4);
-        __text_start = .;
+        __text_start = .;  /* User defined symbol */
         
         *(.text)
         *(.text.*)
@@ -54,7 +54,7 @@ SECTIONS {
         KEEP(*(.fini))
         
         . = ALIGN(4);
-        __text_end = .;
+        __text_end = .;  /* User defined symbol */
     } > __RAM : __LOAD_RX
 
     .rodata : {
@@ -204,7 +204,7 @@ SECTIONS {
 
     .stack (NOLOAD) : {
         . = ALIGN(8);
-
+        
         Image$$FIQ_STACK$$ZI$$Base = .;
         __FIQ_STACK_BASE = .;
         . += __FIQ_STACK_SIZE;

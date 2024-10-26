@@ -42,22 +42,24 @@
 #include "alt_clock_manager.h"
 #include "socal/socal.h"
 
-// Overrides weak vector table exception handler and jump to the FreeRTOS
+// Overrides the weak vector table exception handler and jump to the FreeRTOS
 // FreeRTOS_SWI_Handler function found in portASM.S (Cortex-A9 port).  Note,
-// their function has some input arguments, which obviously doesn't match with
-// this function prototype, so to preserve the input arguments we jump to it
-// without changing anything, hence the use of naked attribute and assembly
-// See tru_startup.c for the vector table
+// their function has some input arguments, which doesn't match with this
+// function prototype.  I don't have the time to look at them in the source,
+// anyway to preserve any input arguments we will jump to it without changing
+// anything, hence the use of naked attribute and assembly.  See tru_startup.c
+// for the vector table
 void __attribute__ ((naked)) SVC_Handler(void){
 	__asm__ volatile("LDR pc, =FreeRTOS_SWI_Handler");
 }
 
-// Overrides weak vector table exception handler and jump to the FreeRTOS
+// Overrides the weak vector table exception handler and jump to the FreeRTOS
 // FreeRTOS_IRQ_Handler function found in portASM.S (Cortex-A9 port).  Note,
-// their function has some input arguments, which obviously doesn't match with
-// this function prototype, so to preserve the input arguments we jump to it
-// without changing anything, hence the use of naked attribute and assembly
-// See tru_startup.c for the vector table
+// their function has some input arguments, which doesn't match with this
+// function prototype.  I don't have the time to look at them in the source,
+// anyway to preserve any input arguments we will jump to it without changing
+// anything, hence the use of naked attribute and assembly.  See tru_startup.c
+// for the vector table
 void __attribute__ ((naked)) IRQ_Handler(void){
 	__asm__ volatile("LDR pc, =FreeRTOS_IRQ_Handler");
 }

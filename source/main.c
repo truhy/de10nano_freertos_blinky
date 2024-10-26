@@ -23,7 +23,7 @@
 	Version  : 20240503
 	Target   : ARM Cortex-A9 on the DE10-Nano development board
 	           (Intel Cyclone V SoC FPGA)
-	Type     : Standalone (aka bare-metal) C application
+	Type     : Standalone C application
 
 	=======
 	Summary
