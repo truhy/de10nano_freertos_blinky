@@ -59,13 +59,8 @@
 // Interrupt mode edge trigger select (1 = edge trigger, 0 = level trigger)
 #define BLINKY_KEY_IRQ_EDGE_TRIGGER 1U
 
-// DE10-Nano HPS LED GPIO bits
-#define DE10N_LED_GPIO_POS     24U
-#define DE10N_LED_GPIO_SET_MSK (1U << DE10N_LED_GPIO_POS)
-
-// DE10-Nano HPS KEY GPIO bits
-#define DE10N_KEY_GPIO_POS     25U
-#define DE10N_KEY_GPIO_SET_MSK (1U << DE10N_KEY_GPIO_POS)
+#define DE10N_LED_GPIO_PINNUM 53U  // DE10-Nano HPS LED GPIO
+#define DE10N_KEY_GPIO_PINNUM 54U  // DE10-Nano HPS KEY GPIO
 
 void blinky_gpio_setup(void);
 tru_hps_gpio_pinstate_t blinky_get_key_state_safe(void);
