@@ -21,7 +21,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
 
-	Version: 20241223
+	Version: 20250405
 
 	Low-level code for Cyclone V SoC HPS GPIO controller module.
 
@@ -41,7 +41,7 @@
 
 #include "tru_config.h"
 
-#if(TRU_TARGET == TRU_C5SOC)
+#if(TRU_TARGET == TRU_TARGET_C5SOC)
 
 #include "tru_c5soc_hps_ll.h"
 #include <stdint.h>
@@ -84,13 +84,13 @@ typedef struct{
 	volatile uint32_t id_ver;
 	volatile uint32_t config_reg2;
 	volatile uint32_t config_reg1;
-}tru_hps_gpio_t;
+}tru_hps_gpio_reg_t;
 
 // GPIO registers as type representation
-#define TRU_HPS_GPIO0_REG ((volatile tru_hps_gpio_t *const)TRU_HPS_GPIO0_BASE)
-#define TRU_HPS_GPIO1_REG ((volatile tru_hps_gpio_t *const)TRU_HPS_GPIO1_BASE)
-#define TRU_HPS_GPIO2_REG ((volatile tru_hps_gpio_t *const)TRU_HPS_GPIO2_BASE)
-#define TRU_HPS_GPIO_REG(base_addr) ((volatile tru_hps_gpio_t *const)base_addr)
+#define TRU_HPS_GPIO0_REG ((volatile tru_hps_gpio_reg_t *const)TRU_HPS_GPIO0_BASE)
+#define TRU_HPS_GPIO1_REG ((volatile tru_hps_gpio_reg_t *const)TRU_HPS_GPIO1_BASE)
+#define TRU_HPS_GPIO2_REG ((volatile tru_hps_gpio_reg_t *const)TRU_HPS_GPIO2_BASE)
+#define TRU_HPS_GPIO_REG(base_addr) ((volatile tru_hps_gpio_reg_t *const)base_addr)
 
 // ===================
 // HPS GPIO0 functions
