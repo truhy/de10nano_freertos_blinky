@@ -20,7 +20,7 @@
 	SOFTWARE.
 
 	Developer: Truong Hy
-	Version  : 20240503
+	Version  : 20251209
 
 	LED blinky demo GPIO code to control the HPS input key and output LED on the
 	DE10-Nano development board.
@@ -33,8 +33,8 @@
 	------------------------------------------------------------------
 	Signal  | Name    | FPGA Pin No | HPS GPIO Register/bit | Function
 	------------------------------------------------------------------
-	HPS_KEY | PIN_J18 | GPIO54      | GPIO1[25]             | I/O
 	HPS_LED | PIN_A20 | GPIO53      | GPIO1[24]             | I/O
+	HPS_KEY | PIN_J18 | GPIO54      | GPIO1[25]             | I/O
 
 	References:
 	- Intel Cyclone V Hard Processor System Technical Reference Manual.
@@ -47,7 +47,7 @@
 #ifndef BLINKY_GPIO_H
 #define BLINKY_GPIO_H
 
-#include "tru_c5soc_hps_gpio_ll.h"
+#include "c5soc/tru_c5soc_hps_gpio_ll.h"
 
 // =============
 // User settings
@@ -59,8 +59,13 @@
 // Interrupt mode edge trigger select (1 = edge trigger, 0 = level trigger)
 #define BLINKY_KEY_IRQ_EDGE_TRIGGER 1U
 
-#define DE10N_LED_GPIO_PINNUM 53U  // DE10-Nano HPS LED GPIO
-#define DE10N_KEY_GPIO_PINNUM 54U  // DE10-Nano HPS KEY GPIO
+// GPIO pin number
+#define DE10N_LED_GPIO_PINNUM 53U  // DE10-Nano HPS LED GPIO bits
+#define DE10N_KEY_GPIO_PINNUM 54U  // DE10-Nano HPS KEY GPIO bits
+
+// Convert to pin number register bit position shift
+#define DE10N_LED_GPIO_PINNUM_BIT TRU_HPS_GPIO1_PINUM_TO_BITPOS(DE10N_LED_GPIO_PINNUM)
+#define DE10N_KEY_GPIO_PINNUM_BIT TRU_HPS_GPIO1_PINUM_TO_BITPOS(DE10N_KEY_GPIO_PINNUM)
 
 void blinky_gpio_setup(void);
 tru_hps_gpio_pinstate_t blinky_get_key_state_safe(void);

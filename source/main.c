@@ -20,21 +20,22 @@
 	SOFTWARE.
 
 	Developer: Truong Hy
-	Version  : 20240503
-	Target   : ARM Cortex-A9 on the DE10-Nano development board
-	           (Intel Cyclone V SoC FPGA)
+	Version  : 20251209
+	Target   : ARM Cortex-A9 on the DE10-Nano Kit development board (Altera
+	           Cyclone V SoC FPGA)
 	Type     : Standalone C application
 
 	=======
 	Summary
 	=======
 
-	A FreeRTOS LED blinky demo for the DE10-Nano development board, targetting
-	the processing system (HPS) of the Intel Cyclone V SoC FPGA.
+	A FreeRTOS LED blinky demo for the DE10-Nano Kit development board,
+	which targets the hard processing system (HPS) of the Altera Cyclone V SoC
+	FPGA.
 
-	In brief, this program creates some tasks that runs preemptively to blink an
-	LED and also read an input key.  Both are wired to the processing side and
-	labelled as HPS_KEY and HPS_LED within the DE10-Nano user manual.
+	In brief, this program creates some preemptively tasks to blink an
+	LED and read from an input key.  Both exists on the processing side and
+	labelled as HPS_KEY and HPS_LED as described in the DE10-Nano user manual.
 
 	The program starts with the LED blinking, holding the input key stops the
 	blinking but keeps the LED on, releasing the key resumes the blinking.
@@ -57,7 +58,7 @@
 		- A suitable JTAG adapter
 
 	You may use the onboard USB-Blaster-II JTAG adapter.  You will need to
-	install the "Intel Quartus Programmer and Tools" or "Intel Quartus Prime
+	install the "Altera Quartus Programmer and Tools" or "Altera Quartus Prime
 	Lite" for the USB Blaster-II driver.  To make things easier, I've included
 	my USB-Blaster-II OpenOCD scripts, which can be found inside the
 	openocd-config-scripts folder.
@@ -73,10 +74,11 @@
 	=========
 
 	Open source libraries used (already included in this example):
-		- FreeRTOS
-		- Intel HWLIB for Cyclone V SoC
+		- CMSIS
 		- Trulib and GNU linker script (my own library and script)
 		- Newlib (included with the GNU Toolchain for Arm)
+		- FreeRTOS
+
 
 	========
 	FreeRTOS
@@ -95,18 +97,18 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-// Intel HWLIB library includes
-#include "alt_interrupt.h"
+// Arm CMSIS includes
+#include "RTE_Components.h"   // CMSIS
+#include CMSIS_device_header  // CMSIS
 
-extern bool blinky_setup(void);
+// Other includes
+#include "blinky_tasks.h"
+
+// Standard includes
+#include <stdbool.h>
 
 static void c5soc_setup(void){
-	// Initialise the interrupt system (GIC)
-	alt_int_global_init();
-	alt_int_cpu_init();
-	alt_int_cpu_enable();
-	alt_int_global_enable();
-	//alt_int_cpu_binary_point_set(0);  // The default is already 0
+	irq_mask(0);  // Enable IRQ mode interrupts for this CPU
 }
 
 int main(void){

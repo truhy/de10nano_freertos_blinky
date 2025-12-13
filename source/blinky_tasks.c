@@ -20,102 +20,21 @@
 	SOFTWARE.
 
 	Developer: Truong Hy
-	Version  : 20241009
-
-	LED blinky demo FreeRTOS tasks.
-
-	The input key capturing mode is configurable between poll and interrupt.
-	See the define in the blinky_gpio.h file.  The modes are described below.
-
-	=========
-	Poll mode
-	=========
-
-	This creates three FreeRTOS tasks, which demonstrates task communication
-	using a FreeRTOS message queue, and blink an LED when the correct message is
-	received.
-
-	The first task is blinky_sender_task().  It continuously writes
-	a blink LED message into the queue every 200ms.
-
-	The second task is blinky_receiver_task().  It continuously checks
-	(reads) the queue for an available message, if a message is read
-	it will process it.
-
-	The third task is blinky_pollkey_task().  It continuously reads (polls) the
-	input key every 100ms.  If state is changed from the last read, then it
-	writes a key pressed or key released message into the queue.
-
-	==============
-	Interrupt mode
-	==============
-
-	This creates two FreeRTOS tasks, which demonstrates task communication
-	using a FreeRTOS message queue, and blink an LED when the correct message is
-	received.
-
-	The first task is blinky_sender_task().  It continuously writes
-	a blink LED message into the queue every 200ms.
-
-	The second task is blinky_receiver_task().  It continuously checks
-	(reads) the queue for an available message, if a message is read
-	it will process it.
-
-	The interrupt on the GPIO input key is enabled, so an interrupt is generated
-	whenever the key is pressed or released.  The interrupt handler writes a key
-	pressed or key released message into the queue.
-
-	Note on the trigger mode
-
-	The interrupt generation for the key release is only possible by using the
-	GPIO module interrupt polarity option inside the interrupt handler.  If it
-	is not used, and assuming the polarity is set to default 0 (active low) then
-	the behaviour would be quite different and work in the following way:
-
-	Note, since the input key is wired to a pull-up resistor:
-		- holding down the key creates a low
-		- releasing the key creates a high
-
-	Level sensitive interrupt mode:
-		- holding down the key repeatedly generates an interrupt
-		- releasing the key does not generate an interrupt
-
-	Edge sensitive interrupt mode:
-		- holding down the key generates an interrupt only once
-		- releasing the key does not generate an interrupt
+	Version  : 20251209
  */
 
-// FreeRTOS includes
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
+#include "blinky_tasks.h"
 
 // Other includes
 #include "blinky_gpio.h"
-#include "tru_irq.h"
 #include "tru_logger.h"
 
-// Standard includes
-#include <stdbool.h>
+// FreeRTOS includes
+#include "queue.h"
 
-// Task priorities
-#define	BLINKY_SENDER_TASK_PRIORITY   (tskIDLE_PRIORITY + 1U)
-#define BLINKY_RECEIVER_TASK_PRIORITY (tskIDLE_PRIORITY + 2U)
-#define BLINKY_POLLKEY_TASK_PRIORITY  (tskIDLE_PRIORITY + 3U)
-
-// GPIO1 IRQ priority used by interrupt mode
-#define BLINKY_GPIO1_IRQ_PRIORITY TRU_GIC_PRIORITY_LEVEL29_7
-
-// The rate to send LED blink messages into the queue.  The specified milliseconds rate is converted into ticks
-#define BLINKY_BLINK_MSG_RATE_MILLISEC 200U
-#define BLINKY_BLINK_MSG_RATE_TICK     (BLINKY_BLINK_MSG_RATE_MILLISEC / portTICK_PERIOD_MS)
-
-// The rate to poll the input key.  The specified milliseconds rate is converted into ticks
-#define BLINKY_POLLKEY_RATE_MILLISEC 100U
-#define BLINKY_POLLKEY_RATE_TICK     (BLINKY_POLLKEY_RATE_MILLISEC / portTICK_PERIOD_MS)
-
-// Length of the queue, i.e. the number of messages it can store until it is full
-#define BLINKY_QUEUE_LENGTH 10U
+// Arm CMSIS includes
+#include "RTE_Components.h"   // CMSIS
+#include CMSIS_device_header  // CMSIS
 
 // Function prototypes
 static void blinky_sender_task(void *parameters);
@@ -272,10 +191,10 @@ static void blinky_receiver_task(void *parameters){
 
 	// Register interrupt handler for the input key to CPU0 with interrupt priority level 29 sublevel 7 - note, this is higher than FreeRTOS tick IRQ handler at level 30 sublevel 0
 	static void blinky_register_gpio1_irq_handler(void){
-		vRegisterIRQHandler(ALT_INT_INTERRUPT_GPIO1, (alt_int_callback_t)blinky_gpio1_irq_handler, NULL);
-		alt_int_dist_target_set(ALT_INT_INTERRUPT_GPIO1, TRU_GIC_DIST_CPU0);
-		alt_int_dist_priority_set(ALT_INT_INTERRUPT_GPIO1, BLINKY_GPIO1_IRQ_PRIORITY);
-		alt_int_dist_enable(ALT_INT_INTERRUPT_GPIO1);
+		IRQ_SetHandler(C5SOC_GPIO1_IRQn, blinky_gpio1_irq_handler);  // Register user interrupt handler
+		IRQ_SetPriority(C5SOC_GPIO1_IRQn, BLINKY_GPIO1_IRQ_PRIORITY);  // Set lowest usable priority
+		IRQ_SetMode(C5SOC_GPIO1_IRQn, IRQ_MODE_TYPE_IRQ | IRQ_MODE_CPU_0 | IRQ_MODE_TRIG_LEVEL | IRQ_MODE_TRIG_LEVEL_HIGH);
+		IRQ_Enable(C5SOC_GPIO1_IRQn);  // Enable the interrupt
 	}
 
 	// HPS GPIO1 interrupt request handler
