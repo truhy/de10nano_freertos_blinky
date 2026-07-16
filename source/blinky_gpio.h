@@ -47,7 +47,7 @@
 #ifndef BLINKY_GPIO_H
 #define BLINKY_GPIO_H
 
-#include "c5soc/tru_c5soc_hps_gpio_ll.h"
+#include "c5soc/tru_gpio_c5soc.h"
 
 // =============
 // User settings

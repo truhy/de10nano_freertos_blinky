@@ -93,6 +93,9 @@
 		                                               heap_[n].c files)
 */
 
+// Trulib includes
+#include "tru_config.h"
+
 // FreeRTOS includes
 #include "FreeRTOS.h"
 #include "task.h"
@@ -104,15 +107,9 @@
 // Other includes
 #include "blinky_tasks.h"
 
-// Standard includes
-#include <stdbool.h>
-
-static void c5soc_setup(void){
-	irq_mask(0);  // Enable IRQ mode interrupts for this CPU
-}
-
 int main(void){
-	c5soc_setup();
+	tru_bsp_init();
+
 	if(blinky_setup()){
 		vTaskStartScheduler();  // Start the FreeRTOS preemptive scheduler
 	}

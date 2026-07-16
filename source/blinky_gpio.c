@@ -30,18 +30,18 @@
 #include "task.h"
 
 void blinky_gpio_setup(void){
-	tru_hps_gpio_ll_reset_release((void *)TRU_HPS_GPIO1_BASE);                                // Release GPIO1 module from reset, i.e. enable it (0 = held in reset, 1 = release)
-	tru_hps_gpio_ll_set_pin_output((void *)TRU_HPS_GPIO1_BASE, DE10N_LED_GPIO_PINNUM_BIT);    // Set LED pin direction to output (0 = input, 1 = output)
-	tru_hps_gpio_ll_set_pin_input((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);     // Set key pin direction to input (0 = input, 1 = output)
-	tru_hps_gpio_ll_set_pin_debounce((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);  // Enable key pin debounce
-	tru_hps_gpio_ll_set_pin_low((void *)TRU_HPS_GPIO1_BASE, DE10N_LED_GPIO_PINNUM_BIT);       // Default LEDs to off
+	tru_hps_gpio_reset_release((void *)TRU_HPS_GPIO1_BASE);                                // Release GPIO1 module from reset, i.e. enable it (0 = held in reset, 1 = release)
+	tru_hps_gpio_set_pin_output((void *)TRU_HPS_GPIO1_BASE, DE10N_LED_GPIO_PINNUM_BIT);    // Set LED pin direction to output (0 = input, 1 = output)
+	tru_hps_gpio_set_pin_input((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);     // Set key pin direction to input (0 = input, 1 = output)
+	tru_hps_gpio_set_pin_debounce((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);  // Enable key pin debounce
+	tru_hps_gpio_set_pin_low((void *)TRU_HPS_GPIO1_BASE, DE10N_LED_GPIO_PINNUM_BIT);       // Default LEDs to off
 
 #if(BLINKY_KEY_CAPTURE_POLL == 0U)
 	#if(BLINKY_KEY_IRQ_EDGE_TRIGGER == 1U)
-		tru_hps_gpio_ll_edge_level((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);  // Select edge sensitive interrupt
+		tru_hps_gpio_edge_level((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);  // Select edge sensitive interrupt
 	#endif
 
-	tru_hps_gpio_ll_int_enable((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);  // Enable interrupt
+	tru_hps_gpio_int_enable((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);  // Enable interrupt
 #endif
 }
 
@@ -63,7 +63,7 @@ tru_hps_gpio_pinstate_t blinky_get_key_state_safe(void){
 
 	taskENTER_CRITICAL();
 	{
-		state = tru_hps_gpio_ll_get_pin_state((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);
+		state = tru_hps_gpio_get_pin_state((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);
 	}
 	taskEXIT_CRITICAL();
 
@@ -73,7 +73,7 @@ tru_hps_gpio_pinstate_t blinky_get_key_state_safe(void){
 void blinky_set_led_state_safe(tru_hps_gpio_pinstate_t state){
 	taskENTER_CRITICAL();
 	{
-		tru_hps_gpio_ll_set_pin_state((void *)TRU_HPS_GPIO1_BASE, DE10N_LED_GPIO_PINNUM_BIT, state);
+		tru_hps_gpio_set_pin_state((void *)TRU_HPS_GPIO1_BASE, DE10N_LED_GPIO_PINNUM_BIT, state);
 	}
 	taskEXIT_CRITICAL();
 }
@@ -81,19 +81,19 @@ void blinky_set_led_state_safe(tru_hps_gpio_pinstate_t state){
 void blinky_toggle_led_safe(void){
 	taskENTER_CRITICAL();
 	{
-		tru_hps_gpio_ll_toggle_pin((void *)TRU_HPS_GPIO1_BASE, DE10N_LED_GPIO_PINNUM_BIT);
+		tru_hps_gpio_toggle_pin((void *)TRU_HPS_GPIO1_BASE, DE10N_LED_GPIO_PINNUM_BIT);
 	}
 	taskEXIT_CRITICAL();
 }
 
 uint32_t blinky_get_pol_key(void){
-	return tru_hps_gpio_ll_get_pol((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);
+	return tru_hps_gpio_get_pol((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);
 }
 
 void blinky_toggle_pol_key(void){
-	tru_hps_gpio_ll_toggle_pol((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);
+	tru_hps_gpio_toggle_pol((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);
 }
 
 void blinky_clear_int_key(void){
-	tru_hps_gpio_ll_clear_int((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);
+	tru_hps_gpio_clear_int((void *)TRU_HPS_GPIO1_BASE, DE10N_KEY_GPIO_PINNUM_BIT);
 }
